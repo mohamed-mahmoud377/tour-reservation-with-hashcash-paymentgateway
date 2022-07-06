@@ -22,7 +22,6 @@ const bookingController = require('./controllers/bookingController')
 
 const globalErrorHandler = require("./controllers/errorContoller");
 
-
 const app = express();
 
 app.enable('trust proxy'); // to trust heroku proxy
