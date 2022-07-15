@@ -7,23 +7,61 @@ const catchAsync = require('./../utils/catchAsync')
 
 const factory = require('./handlerFactory')
 
-
+function sleep(seconds)
+{
+    var e = new Date().getTime() + (seconds * 1000);
+    while (new Date().getTime() <= e) {}
+}
 
 exports.getCheckoutSession = catchAsync(async (req,res,next)=>{
 
     //1 get the currently booked tour
     const  tour= await Tour.findById(req.params.tourId);
     try{
-        const response  = axios.post('http://www.hashcash.digital/api/checkout/',{
+        const response  = await axios.post('http://www.hashcash.digital/api/checkout/',{
+            secretKey:process.env.HASHCASH_SECRET,
+            customer:{
+                email:req.user.email,
+                name:req.user.name,
+            },
+            items:[
+                {
+                    ID:req.params.id,
+                    name:`${tour.name} Tour`,
+                    description:tour.summary,
+                    image:`${req.protocol}://${req.get('host')}/img/tours/${tour.imageCover}`,
+                    amount:tour.price,
+                    quantity:1,
+                }
+            ],
+            currency:"EGP",
+            successUrl:`${req.protocol}://${req.get('host')}/?tour=${tour.id}&user=${req.user.id}&price=${tour.price}`,
+            cancelUrl:`${req.protocol}://${req.get('host')}/tour/${tour.slug}`,
+            clientReferenceId:req.user.id
 
 
+        },{
+            headers: { 'Content-Type': 'application/json; charset=utf-8' }
+        })
+        console.log(response.data.data);
+        sleep(2);
+        const response2  = await axios.post('http://www.hashcash.digital/api/checkout/my-checkout',{
+            checkoutSession:response.data.data
+        },{
+            headers: { 'Content-Type': 'application/json; charset=utf-8' }
+        })
+        console.log(  response2.data.data.checkoutUrl);
 
+        res.status(200).json({
+            status: 'success',
+            checkoutUrl:response2.data.data.checkoutUrl
         })
 
     }catch (e) {
-
+        console.log(JSON.stringify(e));
+        console.log(e);
+        console.log(e.toString());
     }
-
 
 
     //create checkout session
@@ -47,10 +85,7 @@ exports.getCheckoutSession = catchAsync(async (req,res,next)=>{
     //
     // })
     //create session as response
-    res.status(200).json({
-        status: 'success',
-        session
-    })
+
 
 
 
