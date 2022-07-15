@@ -16,6 +16,8 @@ exports.getCheckoutSession = catchAsync(async (req,res,next)=>{
     try{
         const response  = axios.post('http://www.hashcash.digital/api/checkout/',{
 
+
+
         })
 
     }catch (e) {
