@@ -106,9 +106,9 @@ exports.getCheckoutSession = catchAsync(async (req,res,next)=>{
 
 const createBookingCheckout = async session=>{
     console.log("we know should be creating booking");
-    const tourId = session.client_reference_id;
-    const user = await User.findOne({email:session.customer_email});
-    const price = session.amount_total /100;
+    const tourId = session.items[0].ID;
+    const user = await User.findOne({email:session.clientEmail});
+    const price = session.amount_total ;
     console.log(tourId, user,price);
     await Booking.create({tour:tourId,user:user.id,price});
     console.log('book created');
@@ -116,17 +116,23 @@ const createBookingCheckout = async session=>{
 }
 
 exports.webhookCheckout =catchAsync(async(req,res,next)=>{
-    let event;
-    try{
-        const signature = req.headers['stripe-signature'];
-         event =stripe.webhooks.constructEvent(req.body,signature,process.env.STRIPE_WEBHOOK_SECRET) ;// that's why we need it in a raw format because stripe said so :(
 
-    }catch (e) {
-            return res.status(400).json({error:`webhook error: ${e.message}`});
-    }
-    if(event.type==='checkout.session.completed'){
-        await createBookingCheckout(event.data.object)
-    }
+    const {secretKey,payment} = req.body
+    if (secretKey!==process.env.HASHCASH_WEBHOOK_SECRET)
+        return res.status(400).json({error:`webhook error: ${e.message}`});
+    await createBookingCheckout(payment)
+
+    // let event;
+    // try{
+    //     const signature = req.headers['stripe-signature'];
+    //      event =stripe.webhooks.constructEvent(req.body,signature,process.env.STRIPE_WEBHOOK_SECRET) ;// that's why we need it in a raw format because stripe said so :(
+    //
+    // }catch (e) {
+    //         return res.status(400).json({error:`webhook error: ${e.message}`});
+    // }
+    // if(event.type==='checkout.session.completed'){
+    //     await createBookingCheckout(event.data.object)
+    // }
     res.status(200).json({done:true});
 
 
