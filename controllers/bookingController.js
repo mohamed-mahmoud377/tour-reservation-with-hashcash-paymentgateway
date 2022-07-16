@@ -118,6 +118,10 @@ const createBookingCheckout = async session=>{
 exports.webhookCheckout =catchAsync(async(req,res,next)=>{
 
     const {secretKey,payment} = req.body
+    console.log(req.body);
+    console.log(secretKey);
+    console.log(payment);
+
     if (secretKey!==process.env.HASHCASH_WEBHOOK_SECRET)
         return res.status(400).json({error:`webhook error: ${e.message}`});
     await createBookingCheckout(payment)
