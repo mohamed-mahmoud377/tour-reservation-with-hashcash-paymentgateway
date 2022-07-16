@@ -26,7 +26,7 @@ exports.getCheckoutSession = catchAsync(async (req,res,next)=>{
             },
             items:[
                 {
-                    ID:req.params.id,
+                    ID:req.params.tourId,
                     name:`${tour.name} Tour`,
                     description:tour.summary,
                     image:`${req.protocol}://${req.get('host')}/img/tours/${tour.imageCover}`,
