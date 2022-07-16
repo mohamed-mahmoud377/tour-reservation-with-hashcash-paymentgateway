@@ -61,7 +61,7 @@ app.use("/api", limiter); // put the limiter to our middlewares
 // note this
 //why is this route here it is right before express.json and that's because we here need the data in a raw format not in jason format
 // so we had to do it before it and use express.raw instead
-app.post('/webhook-checkout',bookingController.webhookCheckout);
+
 
 app.use(express.json({
     limit: '20kb' // limiting the size of the body
@@ -99,7 +99,7 @@ app.use((req,res,next)=>{
     next();
 })
 
-
+app.post('/webhook-checkout',bookingController.webhookCheckout);
 app.use('/', viewRouter);
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
