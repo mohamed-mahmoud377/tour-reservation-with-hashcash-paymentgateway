@@ -108,7 +108,7 @@ const createBookingCheckout = async session=>{
     console.log("we know should be creating booking");
     const tourId = session.Items[0].ID;
     const user = await User.findOne({email:session.clientEmail});
-    const price = session.amount_total ;
+    const price = session.totalAmount ;
     console.log(tourId, user,price);
     await Booking.create({tour:tourId,user:user.id,price});
     console.log('book created');
